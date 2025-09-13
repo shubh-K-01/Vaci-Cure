@@ -1,5 +1,6 @@
 package com.demeatrix.VaciCure.config;
 
+import com.demeatrix.VaciCure.security.AuthFilter;
 import com.demeatrix.VaciCure.security.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -18,6 +20,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
+    private final AuthFilter authFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -31,11 +34,14 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeHttpRequests((
-                request) -> request.requestMatchers("/**", "/auth/**")
-                .anonymous().requestMatchers("/admin/**")
-                .permitAll().anyRequest().authenticated());
-        httpSecurity.csrf( csrf -> csrf.disable());
+        httpSecurity.csrf(csrf -> csrf.disable());
+        httpSecurity.authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/auth/**", "/public/**").permitAll()
+                        .requestMatchers("/ADMIN/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
+
         return httpSecurity.build();
     }
 

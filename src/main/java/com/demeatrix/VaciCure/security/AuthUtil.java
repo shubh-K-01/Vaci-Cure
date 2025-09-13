@@ -1,8 +1,10 @@
 package com.demeatrix.VaciCure.security;
 
 import com.demeatrix.VaciCure.entity.User;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
-
+@Slf4j
 public class AuthUtil {
 
     @Value("${jwt.secretKey}")
@@ -20,27 +22,56 @@ public class AuthUtil {
     private final long accessTokenExpiration = 15 * 60 * 1000;  // 15 min
     private final long refreshTokenExpiration = 30 * 24 * 60 * 60 * 1000; // 30 days
 
-    public SecretKey getSecretKey(User user) {
-        return Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
+    public SecretKey getSecretKey() {
+        return Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(jwtSecretKey));
     }
 
     public String generateAccessToken(User user) {
         return Jwts.builder()
                 .setSubject(user.getUsername())
-                .claim("roles", user.getAuthorities())
+                .claim("roles", user.getRole())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
-                .signWith(getSecretKey(user))
+                .signWith(getSecretKey())
                 .compact();
     }
 
     public String generateRefreshToken(User user) {
         return Jwts.builder()
                 .setSubject(user.getUsername())
-                .claim("roles", user.getAuthorities())
+                .claim("role", user.getRole())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
-                .signWith(getSecretKey(user))
+                .signWith(getSecretKey())
                 .compact();
+    }
+
+    public String getUserFromToken(String token) {
+        if (token == null || token.isEmpty()) {
+            throw new IllegalArgumentException("Token cannot be null or empty");
+        }
+
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(jwtSecretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();  // Use getBody() instead of getPayload()
+
+            return claims.getSubject();
+
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            log.error("Invalid JWT signature");
+            throw new JwtException("Invalid JWT signature", e);
+        } catch (ExpiredJwtException e) {
+            log.error("JWT token expired");
+            throw new JwtException("JWT token expired", e);
+        } catch (UnsupportedJwtException e) {
+            log.error("Unsupported JWT token");
+            throw new JwtException("Unsupported JWT token", e);
+        } catch (IllegalArgumentException e) {
+            log.error("JWT token is invalid or empty");
+            throw new JwtException("JWT token is invalid or empty", e);
+        }
     }
 }

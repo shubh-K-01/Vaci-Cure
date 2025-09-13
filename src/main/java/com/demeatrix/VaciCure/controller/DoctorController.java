@@ -24,20 +24,13 @@ public class DoctorController {
     private final UserMapper userMapper;
     private final DoctorService doctorService;
 
-//    @PostMapping("/add")
-//    public ResponseEntity<Long> addDoctor(@Valid @RequestBody DoctorDTO doctorDTO) {
-//        doctorService.addDoctor(doctorDTO);
-//        Long doctor = doctorRepository.findById(doctorDTO.getDoctorId()).get().getDoctorId();
-//        return new ResponseEntity<>(doctor,HttpStatus.CREATED);
-//    }
-
     @PostMapping("/add")
     public ResponseEntity<Long> addDoctor(@Valid @RequestBody DoctorDTO doctorDTO) {
         Long savedDoctorId = doctorService.addDoctor(doctorDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedDoctorId);
     }
 
-    @GetMapping("/{licenseNumber}")
+    @GetMapping("/get/{licenseNumber}")
     public ResponseEntity<DoctorDTO> findDoctorByLicenseNumber(@PathVariable String licenseNumber) {
         DoctorDTO doctorDTO = doctorRepository.findDoctorByLicenseNumber(licenseNumber)
                 .map(userMapper::toDTO)
