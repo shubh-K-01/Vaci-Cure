@@ -31,12 +31,12 @@ public class AuthFilter extends OncePerRequestFilter {
 
         final String requestTokenHeader = request.getHeader("Authorization");
 
-        if (requestTokenHeader == null || !requestTokenHeader.toLowerCase().startsWith("bearer ")) {
+        if (requestTokenHeader == null || !requestTokenHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = requestTokenHeader.substring(7).trim();
+        String token = requestTokenHeader.split(" ")[1].trim();
         String username = authUtil.getUserFromToken(token);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null){

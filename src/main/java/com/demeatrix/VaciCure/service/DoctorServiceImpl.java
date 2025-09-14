@@ -1,5 +1,6 @@
 package com.demeatrix.VaciCure.service;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.demeatrix.VaciCure.dto.DoctorDTO;
 import com.demeatrix.VaciCure.entity.Doctor;
 import com.demeatrix.VaciCure.exception.DoctorAlreadyExistsException;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -37,12 +39,11 @@ public class DoctorServiceImpl implements DoctorService {
             throw new DoctorAlreadyExistsException("Doctor with license number " + doctorDTO.getLicenseNumber() + " already exists");
         }
 
-        String currentLicenseNumber = UUID.randomUUID().toString().toUpperCase();
-        doctorDTO.setLicenseNumber(currentLicenseNumber);
+        doctorDTO.setLicenseNumber(generateLicenseNumber());
 
         doctorDTO.setPassword(passwordEncoder.encode(doctorDTO.getPassword()));
 
-        log.info("Generated License Number: {}", currentLicenseNumber);
+        log.info("Generated License Number: {}", generateLicenseNumber());
         log.info("DoctorDTO before mapping: {}", doctorDTO);
 
         Doctor doctor = userMapper.toEntity(doctorDTO);
@@ -72,6 +73,11 @@ public class DoctorServiceImpl implements DoctorService {
         if (licenseNumber == null) {
             throw new IllegalArgumentException("Invalid license number provided");
         }
+    }
+
+    private String generateLicenseNumber() {
+        char[] characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
+        return "DR" + NanoIdUtils.randomNanoId(new Random(), characters, 10);
     }
 
 }
