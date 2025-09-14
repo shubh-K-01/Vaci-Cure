@@ -76,7 +76,7 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     private String generateLicenseNumber() {
-        char[] characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
+        char[] characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
         return "DR" + NanoIdUtils.randomNanoId(new Random(), characters, 10);
     }
 
