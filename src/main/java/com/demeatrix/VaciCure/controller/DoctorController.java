@@ -1,8 +1,7 @@
 package com.demeatrix.VaciCure.controller;
 
 import com.demeatrix.VaciCure.dto.DoctorDTO;
-import com.demeatrix.VaciCure.entity.Doctor;
-import com.demeatrix.VaciCure.exception.DoctorNotFoundException;
+import com.demeatrix.VaciCure.exception.DoctorException.DoctorNotFoundException;
 import com.demeatrix.VaciCure.mapper.UserMapper;
 import com.demeatrix.VaciCure.repository.DoctorRepository;
 import com.demeatrix.VaciCure.service.DoctorService;
@@ -11,9 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor

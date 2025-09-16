@@ -1,7 +1,6 @@
 package com.demeatrix.VaciCure.dto;
 
 import com.demeatrix.VaciCure.entity.Department;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

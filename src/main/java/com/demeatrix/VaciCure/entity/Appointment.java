@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class Appointment {
 
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long Id;
+    private Long id;
 
     @Column(nullable = false, name = "appointment_at")
     private LocalDateTime appointment_at;

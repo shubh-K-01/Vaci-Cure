@@ -1,5 +1,8 @@
 package com.demeatrix.VaciCure.exception;
 
+import com.demeatrix.VaciCure.exception.DoctorException.DoctorNotFoundException;
+import com.demeatrix.VaciCure.exception.UserException.UserAlreadyExistsException;
+import com.demeatrix.VaciCure.exception.UserException.UserDoesNotExistException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

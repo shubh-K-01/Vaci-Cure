@@ -1,9 +1,11 @@
 package com.demeatrix.VaciCure.mapper;
 
+import com.demeatrix.VaciCure.dto.Appointment.AppointmentDTO;
 import com.demeatrix.VaciCure.dto.ChildPatientDTO;
 import com.demeatrix.VaciCure.dto.DoctorDTO;
 import com.demeatrix.VaciCure.dto.SignupRequestDTO;
 import com.demeatrix.VaciCure.dto.UserDTO;
+import com.demeatrix.VaciCure.entity.Appointment;
 import com.demeatrix.VaciCure.entity.ChildPatient;
 import com.demeatrix.VaciCure.entity.Doctor;
 import com.demeatrix.VaciCure.entity.User;
@@ -16,7 +18,6 @@ public interface UserMapper {
     UserDTO toDTO(User user);
     User toEntity(UserDTO userDTO);
 
-
     @Mapping(target = "userId", ignore = true)
     @Mapping(target = "role", ignore = true)
     User toEntity(SignupRequestDTO signupRequestDTO);
@@ -26,6 +27,9 @@ public interface UserMapper {
 
     ChildPatientDTO toDTO(ChildPatient childPatient);
     ChildPatient toEntity(ChildPatientDTO childPatientDTO);
+
+    AppointmentDTO toDTO(Appointment appointment);
+    Appointment toEntity( AppointmentDTO appointmentDTO );
 
 
 }

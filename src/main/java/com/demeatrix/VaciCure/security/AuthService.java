@@ -6,7 +6,7 @@ import com.demeatrix.VaciCure.dto.SignupRequestDTO;
 import com.demeatrix.VaciCure.dto.SignupResponseDTO;
 import com.demeatrix.VaciCure.entity.User;
 import com.demeatrix.VaciCure.exception.InvalidCredentialsException;
-import com.demeatrix.VaciCure.exception.UserAlreadyExistsException;
+import com.demeatrix.VaciCure.exception.UserException.UserAlreadyExistsException;
 import com.demeatrix.VaciCure.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -3,8 +3,8 @@ package com.demeatrix.VaciCure.service;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.demeatrix.VaciCure.dto.DoctorDTO;
 import com.demeatrix.VaciCure.entity.Doctor;
-import com.demeatrix.VaciCure.exception.DoctorAlreadyExistsException;
-import com.demeatrix.VaciCure.exception.DoctorNotFoundException;
+import com.demeatrix.VaciCure.exception.DoctorException.DoctorAlreadyExistsException;
+import com.demeatrix.VaciCure.exception.DoctorException.DoctorNotFoundException;
 import com.demeatrix.VaciCure.mapper.UserMapper;
 import com.demeatrix.VaciCure.repository.DoctorRepository;
 import jakarta.transaction.Transactional;
@@ -14,7 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +24,6 @@ public class DoctorServiceImpl implements DoctorService {
     private final DoctorRepository doctorRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-
 
     @Override
     public Long addDoctor(DoctorDTO doctorDTO) {

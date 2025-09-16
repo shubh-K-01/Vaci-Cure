@@ -5,7 +5,7 @@ import com.demeatrix.VaciCure.dto.LoginResponseDTO;
 import com.demeatrix.VaciCure.dto.SignupRequestDTO;
 import com.demeatrix.VaciCure.dto.SignupResponseDTO;
 import com.demeatrix.VaciCure.entity.User;
-import com.demeatrix.VaciCure.exception.UserDoesNotExistException;
+import com.demeatrix.VaciCure.exception.UserException.UserDoesNotExistException;
 import com.demeatrix.VaciCure.mapper.UserMapper;
 import com.demeatrix.VaciCure.security.AuthService;
 import com.demeatrix.VaciCure.security.AuthUtil;

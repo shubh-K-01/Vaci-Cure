@@ -3,7 +3,7 @@ package com.demeatrix.VaciCure.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum AppointmentStatus {
-    BOOKED,
+    SCHEDULED,
     CHECKED_IN,
     COMPLETED,
     CANCELLED,

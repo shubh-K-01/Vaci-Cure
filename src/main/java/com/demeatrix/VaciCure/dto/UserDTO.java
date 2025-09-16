@@ -1,6 +1,5 @@
 package com.demeatrix.VaciCure.dto;
 
-import com.demeatrix.VaciCure.entity.User;
 import com.demeatrix.VaciCure.enums.UserRole;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
