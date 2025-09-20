@@ -28,22 +28,28 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final UserMapper userMapper;
 
     @Transactional
+    @Override
     public AppointmentDTO createNewAppointment(AppointmentDTO appointmentDTO, Long doctorId, Long childPatientId) {
+
+        Appointment appointment = userMapper.toEntity(appointmentDTO);
+
         Doctor doctor = doctorRepository.findById(doctorId).orElseThrow(() -> new DoctorNotFoundException("Doctor not found"));
 
         ChildPatient childPatient = childPatientRepository.findById(childPatientId).orElseThrow(() -> new RuntimeException("Child patient not found"));
 
         if (appointmentDTO.getId() != null) throw new RuntimeException("Appointment already exists");
 
-        appointmentDTO.setChildPatient(childPatient);
-        appointmentDTO.setDoctor(doctor);
+        appointment.setChildPatient(childPatient);
+        appointment.setDoctor(doctor);
 
-        childPatient.getAppointments().add(appointmentDTO);
-        appointmentRepository.save(appointmentDTO);
-        return appointmentDTO;
+        childPatient.getAppointments().add(appointment);
+
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+        return userMapper.toDTO(savedAppointment);
     }
 
     @Transactional
+    @Override
     public AppointmentDTO updateAppointment(AppointmentDTO appointmentDTO, Long id) {
         Appointment existingAppointment = appointmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Appointment not found"));
 
@@ -54,18 +60,21 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Transactional
-    public void deleteAppointment(Long id) {
+    public void cancelAppointment(Long id) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new AppointmentNotFoundException("Appointment with ID " + id + " not found"));
 
         if (appointment.getStatus() == AppointmentStatus.SCHEDULED) {
             if (appointment.getAppointment_at().isBefore(LocalDateTime.now())) {
                 appointment.setStatus(AppointmentStatus.CANCELLED);
+            } else {
+                throw new RuntimeException("Appointment cannot be cancelled");
             }
         }
         appointmentRepository.save(appointment);
     }
 
+    @Transactional
     @Override
     public AppointmentDTO getAppointment(Long id) throws RuntimeException {
         Appointment existingAppointment = appointmentRepository.findById(id).orElseThrow( () -> new AppointmentNotFoundException("No appointment found with this Id {}" + id));
@@ -74,7 +83,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    @Transactional
     public List<AppointmentDTO> getAllAppointments(Long childPatientId) throws RuntimeException {
-        return appointmentRepository.findAllAppointmentsOfPatient(childPatientId);
+        return appointmentRepository.findByChildPatient_ChildPatientId(childPatientId);
     }
 }

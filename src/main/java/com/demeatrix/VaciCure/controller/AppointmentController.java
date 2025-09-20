@@ -5,21 +5,36 @@ import com.demeatrix.VaciCure.service.AppointmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/appointment")
+@Validated
 @RequiredArgsConstructor
+@RequestMapping("/appointments")
 public class AppointmentController {
+
     private final AppointmentService appointmentService;
 
-    @GetMapping("/get")
-    public ResponseEntity<AppointmentDTO> getAppointmentById(@Valid @RequestBody Long appointmentId) {
+    @GetMapping("get/{appointmentId}")
+    public ResponseEntity<AppointmentDTO> getAppointmentById(@PathVariable Long appointmentId) {
         return ResponseEntity.ok(appointmentService.getAppointment(appointmentId));
     }
 
-    @PostMapping("/create")
+    @PostMapping("/schedule")
     public ResponseEntity<AppointmentDTO> createNewAppointment(@Valid @RequestBody AppointmentDTO appointmentDTO) {
-        return ResponseEntity.ok(appointmentService.createNewAppointment(appointmentDTO, appointmentDTO.getChildPatient().getChildPatientId(), appointmentDTO.getDoctor().getDoctorId()));
+        AppointmentDTO savedAppointment = appointmentService.createNewAppointment(
+                appointmentDTO,
+                appointmentDTO.getChildPatientId(),
+                appointmentDTO.getDoctorId()
+        );
+        return ResponseEntity.ok(savedAppointment);
+    }
+
+    @DeleteMapping("/cancel/{appointmentId}")
+    public ResponseEntity<String> cancelAppointment(@PathVariable Long appointmentId) {
+        appointmentService.cancelAppointment(appointmentId);
+        return ResponseEntity.ok("Appointment is cancelled.");
     }
 }
+

@@ -1,5 +1,6 @@
 package com.demeatrix.VaciCure.dto.Appointment;
 
+import com.demeatrix.VaciCure.dto.ChildPatientDTO;
 import com.demeatrix.VaciCure.entity.Appointment;
 import com.demeatrix.VaciCure.entity.ChildPatient;
 import com.demeatrix.VaciCure.entity.Doctor;
@@ -14,16 +15,16 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AppointmentDTO extends Appointment {
+public class AppointmentDTO {
     private Long Id;
 
     private LocalDateTime appointment_at;
 
     private String reason;
 
-    private ChildPatient childPatient;
+    private Long childPatientId;
 
-    private Doctor doctor;
+    private Long doctorId;
 
     private AppointmentStatus status;
 

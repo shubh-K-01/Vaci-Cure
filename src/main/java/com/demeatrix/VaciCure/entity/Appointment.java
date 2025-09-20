@@ -27,8 +27,8 @@ public class Appointment {
     @JoinColumn(name = "child_patient_id", nullable = false)
     private ChildPatient childPatient;
 
-    @ManyToOne
-    @JoinColumn(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
     @Column(nullable = false)
