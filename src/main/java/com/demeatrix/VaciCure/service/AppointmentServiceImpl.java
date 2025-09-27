@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -29,13 +30,16 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Transactional
     @Override
-    public AppointmentDTO createNewAppointment(AppointmentDTO appointmentDTO, Long doctorId, Long childPatientId) {
+    public AppointmentDTO createNewAppointment(AppointmentDTO appointmentDTO) {
 
         Appointment appointment = userMapper.toEntity(appointmentDTO);
 
-        Doctor doctor = doctorRepository.findById(doctorId).orElseThrow(() -> new DoctorNotFoundException("Doctor not found"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime parseDateAndTime = LocalDateTime.parse(appointmentDTO.getAppointmentAt(), formatter);
 
-        ChildPatient childPatient = childPatientRepository.findById(childPatientId).orElseThrow(() -> new RuntimeException("Child patient not found"));
+        Doctor doctor = doctorRepository.findDoctorByLicenseNumber(appointmentDTO.getDoctorLicenseNumber()).orElseThrow(() -> new DoctorNotFoundException("Doctor not found"));
+
+        ChildPatient childPatient = childPatientRepository.findById(appointmentDTO.getChildPatientId()).orElseThrow(() -> new RuntimeException("Child patient not found"));
 
         if (appointmentDTO.getId() != null) throw new RuntimeException("Appointment already exists");
 
@@ -44,6 +48,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         childPatient.getAppointments().add(appointment);
 
+        appointment.setAppointmentAt(parseDateAndTime);
         Appointment savedAppointment = appointmentRepository.save(appointment);
         return userMapper.toDTO(savedAppointment);
     }
@@ -53,8 +58,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentDTO updateAppointment(AppointmentDTO appointmentDTO, Long id) {
         Appointment existingAppointment = appointmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Appointment not found"));
 
-        existingAppointment.setAppointment_at(appointmentDTO.getAppointment_at());
-        existingAppointment.setAppointment_at(appointmentDTO.getAppointment_at());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime parseDateAndTime = LocalDateTime.parse(appointmentDTO.getAppointmentAt(), formatter);
 
         return userMapper.toDTO(appointmentRepository.save(existingAppointment));
     }
@@ -65,7 +70,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .orElseThrow(() -> new AppointmentNotFoundException("Appointment with ID " + id + " not found"));
 
         if (appointment.getStatus() == AppointmentStatus.SCHEDULED) {
-            if (appointment.getAppointment_at().isBefore(LocalDateTime.now())) {
+            if (appointment.getAppointmentAt().isBefore(LocalDateTime.now())) {
                 appointment.setStatus(AppointmentStatus.CANCELLED);
             } else {
                 throw new RuntimeException("Appointment cannot be cancelled");

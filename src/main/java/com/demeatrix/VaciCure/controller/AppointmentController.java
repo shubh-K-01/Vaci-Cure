@@ -24,10 +24,8 @@ public class AppointmentController {
     @PostMapping("/schedule")
     public ResponseEntity<AppointmentDTO> createNewAppointment(@Valid @RequestBody AppointmentDTO appointmentDTO) {
         AppointmentDTO savedAppointment = appointmentService.createNewAppointment(
-                appointmentDTO,
-                appointmentDTO.getChildPatientId(),
-                appointmentDTO.getDoctorId()
-        );
+                        appointmentDTO
+                );
         return ResponseEntity.ok(savedAppointment);
     }
 

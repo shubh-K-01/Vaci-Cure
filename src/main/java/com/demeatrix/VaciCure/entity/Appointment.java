@@ -18,7 +18,7 @@ public class Appointment {
     private Long id;
 
     @Column(nullable = false, name = "appointment_at")
-    private LocalDateTime appointment_at;
+    private LocalDateTime appointmentAt;
 
     @Column(length = 500)
     private String reason;
@@ -28,7 +28,7 @@ public class Appointment {
     private ChildPatient childPatient;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", nullable = false)
+    @JoinColumn(name = "license_number", nullable = false)
     private Doctor doctor;
 
     @Column(nullable = false)

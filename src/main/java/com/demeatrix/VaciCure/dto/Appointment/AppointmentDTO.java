@@ -18,13 +18,13 @@ import java.time.LocalDateTime;
 public class AppointmentDTO {
     private Long Id;
 
-    private LocalDateTime appointment_at;
+    private String appointmentAt;
 
     private String reason;
 
     private Long childPatientId;
 
-    private Long doctorId;
+    private String doctorLicenseNumber;
 
     private AppointmentStatus status;
 
