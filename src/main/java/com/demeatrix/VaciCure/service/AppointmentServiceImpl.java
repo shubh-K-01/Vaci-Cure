@@ -34,8 +34,17 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         Appointment appointment = userMapper.toEntity(appointmentDTO);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime parseDateAndTime = LocalDateTime.parse(appointmentDTO.getAppointmentAt(), formatter);
+        DateTimeFormatter formatterWithSeconds = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        DateTimeFormatter formatterWithoutSeconds = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+
+        String dateTimeStr = appointmentDTO.getAppointmentAt();
+        LocalDateTime parseDateAndTime;
+
+        try {
+            parseDateAndTime = LocalDateTime.parse(dateTimeStr, formatterWithSeconds);
+        } catch (Exception e) {
+            parseDateAndTime = LocalDateTime.parse(dateTimeStr, formatterWithoutSeconds);
+        }
 
         Doctor doctor = doctorRepository.findDoctorByLicenseNumber(appointmentDTO.getDoctorLicenseNumber()).orElseThrow(() -> new DoctorNotFoundException("Doctor not found"));
 
@@ -82,7 +91,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Transactional
     @Override
     public AppointmentDTO getAppointment(Long id) throws RuntimeException {
-        Appointment existingAppointment = appointmentRepository.findById(id).orElseThrow( () -> new AppointmentNotFoundException("No appointment found with this Id {}" + id));
+        Appointment existingAppointment = appointmentRepository.findById(id).orElseThrow(() -> new AppointmentNotFoundException("No appointment found with this Id {}" + id));
 
         return userMapper.toDTO(existingAppointment);
     }
