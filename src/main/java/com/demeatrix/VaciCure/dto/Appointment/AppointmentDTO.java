@@ -5,6 +5,7 @@ import com.demeatrix.VaciCure.entity.Appointment;
 import com.demeatrix.VaciCure.entity.ChildPatient;
 import com.demeatrix.VaciCure.entity.Doctor;
 import com.demeatrix.VaciCure.enums.AppointmentStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,7 +19,8 @@ import java.time.LocalDateTime;
 public class AppointmentDTO {
     private Long Id;
 
-    private String appointmentAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
+    private LocalDateTime appointmentAt;
 
     private String reason;
 

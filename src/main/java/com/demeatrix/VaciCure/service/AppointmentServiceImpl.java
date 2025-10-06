@@ -13,13 +13,14 @@ import com.demeatrix.VaciCure.repository.ChildPatientRepository;
 import com.demeatrix.VaciCure.repository.DoctorRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AppointmentServiceImpl implements AppointmentService {
 
@@ -32,18 +33,12 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public AppointmentDTO createNewAppointment(AppointmentDTO appointmentDTO) {
 
+        log.info("Received time as appointmentAt: {}", appointmentDTO.getAppointmentAt());
+
         Appointment appointment = userMapper.toEntity(appointmentDTO);
 
-        DateTimeFormatter formatterWithSeconds = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-        DateTimeFormatter formatterWithoutSeconds = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
-
-        String dateTimeStr = appointmentDTO.getAppointmentAt();
-        LocalDateTime parseDateAndTime;
-
-        try {
-            parseDateAndTime = LocalDateTime.parse(dateTimeStr, formatterWithSeconds);
-        } catch (Exception e) {
-            parseDateAndTime = LocalDateTime.parse(dateTimeStr, formatterWithoutSeconds);
+        if (appointment.getAppointmentAt().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Appointment must be in the future");
         }
 
         Doctor doctor = doctorRepository.findDoctorByLicenseNumber(appointmentDTO.getDoctorLicenseNumber()).orElseThrow(() -> new DoctorNotFoundException("Doctor not found"));
@@ -57,8 +52,8 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         childPatient.getAppointments().add(appointment);
 
-        appointment.setAppointmentAt(parseDateAndTime);
-        Appointment savedAppointment = appointmentRepository.save(appointment);
+        appointment.setAppointmentAt(appointmentDTO.getAppointmentAt());
+        var savedAppointment = appointmentRepository.save(appointment);
         return userMapper.toDTO(savedAppointment);
     }
 
@@ -67,8 +62,9 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentDTO updateAppointment(AppointmentDTO appointmentDTO, Long id) {
         Appointment existingAppointment = appointmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Appointment not found"));
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime parseDateAndTime = LocalDateTime.parse(appointmentDTO.getAppointmentAt(), formatter);
+        existingAppointment.setAppointmentAt(appointmentDTO.getAppointmentAt());
+        existingAppointment.setReason(appointmentDTO.getReason());
+        existingAppointment.setStatus(appointmentDTO.getStatus());
 
         return userMapper.toDTO(appointmentRepository.save(existingAppointment));
     }
@@ -101,4 +97,9 @@ public class AppointmentServiceImpl implements AppointmentService {
     public List<AppointmentDTO> getAllAppointments(Long childPatientId) throws RuntimeException {
         return appointmentRepository.findByChildPatient_ChildPatientId(childPatientId);
     }
+
+//    private static LocalDateTime getParsedDateTime(String appointmentTime) {
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+//        return LocalDateTime.parse(appointmentTime, formatter);
+//    }
 }
