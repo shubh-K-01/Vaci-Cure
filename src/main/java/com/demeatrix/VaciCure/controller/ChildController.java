@@ -26,7 +26,10 @@ public class ChildController {
         return ResponseEntity.ok(childPatientService.getChildPatientById(childPatientId));
     }
 
-
+    @GetMapping("/exists/{id}")
+    public ResponseEntity<Boolean> isDoctorExist(@PathVariable Long id) {
+        return ResponseEntity.ok(childPatientService.isChildPatientExist(id));
+    }
 
 }
 

@@ -33,4 +33,9 @@ public class DoctorController {
                 .orElseThrow(() -> new DoctorNotFoundException("Doctor with Id " + licenseNumber + " not found"));
         return new ResponseEntity<>(doctorDTO, HttpStatus.OK);
     }
+
+    @GetMapping("/exists/{id}")
+    public ResponseEntity<Boolean> isDoctorExist(@PathVariable String licenseNumber) {
+        return ResponseEntity.ok(doctorService.isDoctorExist(licenseNumber));
+    }
 }

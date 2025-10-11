@@ -16,11 +16,16 @@ import java.util.Set;
 public class DoctorDTO {
 
     private Long doctorId;
-    private String fullName;
-    private String specialization;
-    private String email;
-    private String licenseNumber;
-    private String password;
-    private Set<Department> departments = new HashSet<>();
 
+    private String fullName;
+
+    private String specialization;
+
+    private String email;
+
+    private String licenseNumber;
+
+    private String password;
+
+    private Set<Department> departments = new HashSet<>();
 }

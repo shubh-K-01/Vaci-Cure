@@ -20,7 +20,7 @@ public class AuthUtil {
     @Value("${jwt.secretKey}")
     private String jwtSecretKey;
 
-    private final long accessTokenExpiration = 15 * 60 * 1000;  // 15 min
+    private final long accessTokenExpiration = 30 * 60 * 1000;  // 15 min
     private final long refreshTokenExpiration = 30 * 24 * 60 * 60 * 1000; // 30 days
 
     public SecretKey getSecretKey() {

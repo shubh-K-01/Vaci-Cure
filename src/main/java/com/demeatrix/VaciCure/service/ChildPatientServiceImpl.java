@@ -34,5 +34,8 @@ public class ChildPatientServiceImpl implements ChildPatientService {
          return userMapper.toDTO(existingChildPatient);
     }
 
-
+    @Override
+    public Boolean isChildPatientExist(Long id) {
+        return childPatientRepository.existsById(id);
+    }
 }

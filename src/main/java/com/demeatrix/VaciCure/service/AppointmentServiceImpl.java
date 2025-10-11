@@ -6,7 +6,10 @@ import com.demeatrix.VaciCure.entity.ChildPatient;
 import com.demeatrix.VaciCure.entity.Doctor;
 import com.demeatrix.VaciCure.enums.AppointmentStatus;
 import com.demeatrix.VaciCure.exception.AppointmentException.AppointmentNotFoundException;
+import com.demeatrix.VaciCure.exception.AppointmentException.InvalidAppointmentException;
 import com.demeatrix.VaciCure.exception.DoctorException.DoctorNotFoundException;
+import com.demeatrix.VaciCure.exception.GlobalExceptionHandler;
+import com.demeatrix.VaciCure.exception.PatientException.PatientNotFoundException;
 import com.demeatrix.VaciCure.mapper.UserMapper;
 import com.demeatrix.VaciCure.repository.AppointmentRepository;
 import com.demeatrix.VaciCure.repository.ChildPatientRepository;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -26,35 +30,61 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
     private final DoctorRepository doctorRepository;
+    private final DoctorService doctorService;
     private final ChildPatientRepository childPatientRepository;
     private final UserMapper userMapper;
 
     @Transactional
     @Override
     public AppointmentDTO createNewAppointment(AppointmentDTO appointmentDTO) {
+        validateAppointmentRequest(appointmentDTO);
 
-        log.info("Received time as appointmentAt: {}", appointmentDTO.getAppointmentAt());
+        Appointment appointment = createAppointmentFromDTO(appointmentDTO);
+        Appointment savedAppointment = appointmentRepository.save(appointment);
 
-        Appointment appointment = userMapper.toEntity(appointmentDTO);
+        return userMapper.toDTO(savedAppointment);
+    }
 
-        if (appointment.getAppointmentAt().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Appointment must be in the future");
+    private void validateAppointmentRequest(AppointmentDTO appointmentDTO) {
+        if (appointmentDTO.getId() != null) {
+            throw new InvalidAppointmentException("Cannot create an appointment that already has an ID");
         }
 
-        Doctor doctor = doctorRepository.findDoctorByLicenseNumber(appointmentDTO.getDoctorLicenseNumber()).orElseThrow(() -> new DoctorNotFoundException("Doctor not found"));
+        if (appointmentDTO.getAppointmentAt() == null) {
+            throw new InvalidAppointmentException("Appointment time cannot be null");
+        }
 
-        ChildPatient childPatient = childPatientRepository.findById(appointmentDTO.getChildPatientId()).orElseThrow(() -> new RuntimeException("Child patient not found"));
+        if (appointmentDTO.getAppointmentAt().isBefore(LocalDateTime.now())) {
+            throw new InvalidAppointmentException("Appointment must be in the future");
+        }
 
-        if (appointmentDTO.getId() != null) throw new RuntimeException("Appointment already exists");
+        if (!doctorRepository.existsByLicenseNumber(appointmentDTO.getDoctorLicenseNumber())) {
+            throw new DoctorNotFoundException("Doctor with license number " +
+                    appointmentDTO.getDoctorLicenseNumber() + " not found");
+        }
+
+        if (!childPatientRepository.existsById(appointmentDTO.getChildPatientId())) {
+            throw new RuntimeException("Patient with ID " +
+                    appointmentDTO.getChildPatientId() + " not found");
+        }
+    }
+
+    private Appointment createAppointmentFromDTO(AppointmentDTO appointmentDTO) {
+        Appointment appointment = userMapper.toEntity(appointmentDTO);
+        ChildPatient childPatient = childPatientRepository.findById(appointmentDTO.getChildPatientId())
+                .orElseThrow(() -> new PatientNotFoundException("Patient not found with ID: " + appointmentDTO.getChildPatientId()));
+
+        Doctor doctor = doctorRepository.findDoctorByLicenseNumber(appointmentDTO.getDoctorLicenseNumber())
+                .orElseThrow(() -> new DoctorNotFoundException("Doctor not found with license number: " + appointmentDTO.getDoctorLicenseNumber()));
 
         appointment.setChildPatient(childPatient);
         appointment.setDoctor(doctor);
+        appointment.setStatus(appointmentDTO.getStatus() != null ?
+                appointmentDTO.getStatus() : AppointmentStatus.SCHEDULED);
 
         childPatient.getAppointments().add(appointment);
 
-        appointment.setAppointmentAt(appointmentDTO.getAppointmentAt());
-        var savedAppointment = appointmentRepository.save(appointment);
-        return userMapper.toDTO(savedAppointment);
+        return appointment;
     }
 
     @Transactional
@@ -97,9 +127,4 @@ public class AppointmentServiceImpl implements AppointmentService {
     public List<AppointmentDTO> getAllAppointments(Long childPatientId) throws RuntimeException {
         return appointmentRepository.findByChildPatient_ChildPatientId(childPatientId);
     }
-
-//    private static LocalDateTime getParsedDateTime(String appointmentTime) {
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-//        return LocalDateTime.parse(appointmentTime, formatter);
-//    }
 }

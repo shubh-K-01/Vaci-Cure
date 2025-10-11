@@ -41,12 +41,9 @@ public class DoctorServiceImpl implements DoctorService {
 
         doctorDTO.setPassword(passwordEncoder.encode(doctorDTO.getPassword()));
 
-        log.info("Generated License Number: {}", generateLicenseNumber());
-        log.info("DoctorDTO before mapping: {}", doctorDTO);
-
         Doctor doctor = userMapper.toEntity(doctorDTO);
         Doctor savedDoctor = doctorRepository.save(doctor);
-        log.info("Doctor with ID {} saved successfully", savedDoctor.getDoctorId());
+
         return savedDoctor.getDoctorId();
     }
 
@@ -65,6 +62,11 @@ public class DoctorServiceImpl implements DoctorService {
                     log.error("Doctor with license number {} not found", licenseNumber);
                     return new DoctorNotFoundException("Doctor with license number " + licenseNumber + " not found");
                 });
+    }
+
+    @Override
+    public Boolean isDoctorExist(String licenseNumber) {
+        return doctorRepository.existsByLicenseNumber(licenseNumber);
     }
 
     private void validateLicenseNumber(String licenseNumber) {
