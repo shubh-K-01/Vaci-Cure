@@ -28,7 +28,7 @@ public class Appointment {
     private ChildPatient childPatient;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_license_number", nullable = false)
+    @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
     @Column(nullable = false)

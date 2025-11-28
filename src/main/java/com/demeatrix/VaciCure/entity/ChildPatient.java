@@ -11,8 +11,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Entity
 @ToString
@@ -56,7 +56,8 @@ public class ChildPatient {
     @Column(unique = true,nullable = false, length = 20)
     private String parentPhoneNumber;
 
-    @OneToMany(mappedBy = "childPatient", cascade = {CascadeType.REMOVE})
-    private List<Appointment> appointments = new ArrayList<>();
+    @OneToMany(mappedBy = "childPatient", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("appointmentAt DESC")
+    private Set<Appointment> appointments = new LinkedHashSet<>();
 
 }

@@ -8,15 +8,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
 @Validated
-@RequiredArgsConstructor
+@RestController
 @RequestMapping("/appointments")
+@RequiredArgsConstructor
 public class AppointmentController {
 
     private final AppointmentService appointmentService;
 
-    @GetMapping("get/{appointmentId}")
+    @GetMapping("/{appointmentId}")
     public ResponseEntity<AppointmentDTO> getAppointmentById(@PathVariable Long appointmentId) {
         return ResponseEntity.ok(appointmentService.getAppointment(appointmentId));
     }

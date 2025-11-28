@@ -13,7 +13,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -32,6 +34,5 @@ public class ChildPatientDTO {
 
     private String parentPhoneNumber;
 
-    private List<Appointment> appointments = new ArrayList<>();
-
+    private Set<Appointment> appointments = new LinkedHashSet<>();
 }
