@@ -1,7 +1,10 @@
 package com.demeatrix.VaciCure.enums;
 
 public enum UserRole {
+    SUPER_ADMIN,
     ADMIN,
     DOCTOR,
-    PATIENT,
+    NURSE,
+    PHARMACIST,
+    PATIENT
 }
