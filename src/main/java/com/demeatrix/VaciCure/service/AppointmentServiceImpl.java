@@ -3,12 +3,10 @@ package com.demeatrix.VaciCure.service;
 import com.demeatrix.VaciCure.dto.Appointment.AppointmentDTO;
 import com.demeatrix.VaciCure.entity.Appointment;
 import com.demeatrix.VaciCure.entity.ChildPatient;
-import com.demeatrix.VaciCure.entity.Doctor;
 import com.demeatrix.VaciCure.enums.AppointmentStatus;
 import com.demeatrix.VaciCure.exception.AppointmentException.AppointmentNotFoundException;
 import com.demeatrix.VaciCure.exception.AppointmentException.InvalidAppointmentException;
 import com.demeatrix.VaciCure.exception.DoctorException.DoctorNotFoundException;
-import com.demeatrix.VaciCure.exception.GlobalExceptionHandler;
 import com.demeatrix.VaciCure.exception.PatientException.PatientNotFoundException;
 import com.demeatrix.VaciCure.mapper.UserMapper;
 import com.demeatrix.VaciCure.repository.AppointmentRepository;
@@ -21,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -30,7 +27,6 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
     private final DoctorRepository doctorRepository;
-    private final DoctorService doctorService;
     private final ChildPatientRepository childPatientRepository;
     private final UserMapper userMapper;
 
@@ -70,22 +66,31 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     private Appointment createAppointmentFromDTO(AppointmentDTO appointmentDTO) {
+
         Appointment appointment = userMapper.toEntity(appointmentDTO);
         ChildPatient childPatient = childPatientRepository.findById(appointmentDTO.getChildPatientId())
                 .orElseThrow(() -> new PatientNotFoundException("Patient not found with ID: " + appointmentDTO.getChildPatientId()));
 
-        Doctor doctor = doctorRepository.findDoctorByLicenseNumber(appointmentDTO.getDoctorLicenseNumber())
-                .orElseThrow(() -> new DoctorNotFoundException("Doctor not found with license number: " + appointmentDTO.getDoctorLicenseNumber()));
+//        Doctor doctor = doctorRepository.findDoctorByLicenseNumber(appointmentDTO.getDoctorLicenseNumber())
+//                .orElseThrow(() -> new DoctorNotFoundException("Doctor not found with ID: " + appointmentDTO.getDoctorLicenseNumber()));
 
         appointment.setChildPatient(childPatient);
-        appointment.setDoctor(doctor);
+//        appointment.setDoctor(doctor);
         appointment.setStatus(appointmentDTO.getStatus() != null ?
                 appointmentDTO.getStatus() : AppointmentStatus.SCHEDULED);
 
         childPatient.getAppointments().add(appointment);
-
         return appointment;
     }
+
+//    private List<Doctor> getAvailableDoctor(String reason, Long childPatientId) {
+//        for(Doctor availableDoctor : doctor) {
+//            if(availableDoctor.getDepartment().getDepartmentName().equals(reason)) {
+//                return availableDoctor;
+//            }
+//        }
+//        return null;
+//    }
 
     @Transactional
     @Override
@@ -104,13 +109,15 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new AppointmentNotFoundException("Appointment with ID " + id + " not found"));
 
-        if (appointment.getStatus() == AppointmentStatus.SCHEDULED) {
-            if (appointment.getAppointmentAt().isBefore(LocalDateTime.now())) {
-                appointment.setStatus(AppointmentStatus.CANCELLED);
-            } else {
-                throw new RuntimeException("Appointment cannot be cancelled");
-            }
+        if (appointment.getStatus() != AppointmentStatus.SCHEDULED) {
+            throw new InvalidAppointmentException("Only SCHEDULED appointments can be cancelled. Current status: " + appointment.getStatus());
         }
+
+        if (appointment.getAppointmentAt().isBefore(LocalDateTime.now())) {
+            throw new InvalidAppointmentException("Cannot cancel an appointment that has already passed: " + appointment.getAppointmentAt());
+        }
+
+        appointment.setStatus(AppointmentStatus.CANCELLED);
         appointmentRepository.save(appointment);
     }
 
