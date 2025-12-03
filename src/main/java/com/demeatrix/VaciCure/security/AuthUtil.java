@@ -17,11 +17,14 @@ import java.util.Date;
 @Slf4j
 public class AuthUtil {
 
-    @Value("${jwt.secretKey}")
+    @Value("${jwt.secret-key}")
     private String jwtSecretKey;
 
-    private final long accessTokenExpiration = 30 * 60 * 1000;  // 15 min
-    private final long refreshTokenExpiration = 30 * 24 * 60 * 60 * 1000; // 30 days
+    @Value("${jwt.access-token-expiration-ms:1800000}")
+    private long accessTokenExpiration;
+
+    @Value("${jwt.refresh-token-expiration-ms:2592000000}")
+    private long refreshTokenExpiration;
 
     public SecretKey getSecretKey() {
         return Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(jwtSecretKey));
