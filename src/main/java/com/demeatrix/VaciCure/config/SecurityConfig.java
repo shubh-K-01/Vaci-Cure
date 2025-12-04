@@ -51,10 +51,17 @@ public class SecurityConfig {
                         // Admin-only endpoints
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
+                        // Vaccine catalog
+                        .requestMatchers(HttpMethod.GET, "/vaccines/**").hasAnyRole("DOCTOR", "NURSE", "ADMIN", "PHARMACIST")
+                        .requestMatchers(HttpMethod.POST, "/vaccines/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/vaccines/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/vaccines/**").hasRole("ADMIN")
+
                         // Doctor and nurse endpoints
                         .requestMatchers("/vaccinations/**").hasAnyRole("DOCTOR", "NURSE", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/profile/doctors/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/inventory/**").hasAnyRole("PHARMACIST", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/inventory/**").hasAnyRole("PHARMACIST", "ADMIN", "DOCTOR", "NURSE")
 
                         // All other endpoints require authentication
                         .anyRequest().authenticated()

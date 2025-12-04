@@ -1,6 +1,6 @@
 package com.demeatrix.VaciCure.entity;
 
-import com.demeatrix.VaciCure.entity.gender.GenderType;
+import com.demeatrix.VaciCure.enums.GenderType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
